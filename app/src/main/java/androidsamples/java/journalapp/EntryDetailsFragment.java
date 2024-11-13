@@ -1,9 +1,15 @@
 package androidsamples.java.journalapp;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -74,6 +80,40 @@ public class EntryDetailsFragment extends Fragment {
               this.mEntry = entry;
               if (entry != null) updateUI();
             });
+  }
+
+  // menu items
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_entry_details, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+    if (item.getItemId() == R.id.share) {
+      Intent sendIntent = new Intent();
+      sendIntent.setAction(Intent.ACTION_SEND);
+      String text = "Look what I have been up to: " + mEntry.title() + " on " + mEntry.date() + ", " + mEntry.start() + " to " + mEntry.end();
+      sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+      sendIntent.setType("text/plain");
+      Intent.createChooser(sendIntent,"Share via");
+      startActivity(sendIntent);
+    }
+
+    else if(item.getItemId() == R.id.delete){
+      new AlertDialog.Builder(requireActivity())
+              .setTitle("Delete Entry")
+              .setMessage("This entry will be deleted. Proceed?")
+              .setIcon(android.R.drawable.ic_menu_delete)
+              .setPositiveButton(android.R.string.yes, (dialog, whichButton) -> {
+                mEntryDetailsViewModel.deleteEntry(mEntry);
+                requireActivity().onBackPressed();
+              })
+              .setNegativeButton(android.R.string.no, null).show();
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   @SuppressLint("SetTextI18n")

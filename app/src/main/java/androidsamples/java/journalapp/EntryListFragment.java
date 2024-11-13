@@ -2,9 +2,14 @@ package androidsamples.java.journalapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -38,7 +43,7 @@ public class EntryListFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mJournalViewModel = new ViewModelProvider(this).get(JournalViewModel.class);
-    // setHasOptionsMenu(true);
+     setHasOptionsMenu(true);
   }
 
   @Override
@@ -71,6 +76,23 @@ public class EntryListFragment extends Fragment {
     Navigation.findNavController(view).navigate(action);
   }
 
+  // menu items
+  @Override
+  public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    super.onCreateOptionsMenu(menu, inflater);
+    inflater.inflate(R.menu.menu_entry_list, menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+    if (item.getItemId() == R.id.info) {
+      Log.d(TAG, "Info button clicked");
+      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://jamesclear.com/atomic-habits"));
+      startActivity(intent);
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
 
   private static class EntryViewHolder extends RecyclerView.ViewHolder {
     private final TextView mTxtTitle;
