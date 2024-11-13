@@ -49,5 +49,10 @@
 
   <dialog
       android:id="@+id/timePickerDialog"
-      android:name="androidsamples.java.journalapp.TimePickerFragment" />
+      android:name="androidsamples.java.journalapp.TimePickerFragment" >
+    <argument
+        android:name="isStart"
+        app:argType="boolean"
+        android:defaultValue="true"/>
+  </dialog>
 </navigation>
