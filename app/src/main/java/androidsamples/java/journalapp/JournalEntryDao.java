@@ -1,6 +1,7 @@
 package androidsamples.java.journalapp;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
@@ -9,6 +10,7 @@ import androidx.room.Update;
 import java.util.List;
 import java.util.UUID;
 
+@Dao
 public interface JournalEntryDao {
     @Insert
     void insert(JournalEntry entry);

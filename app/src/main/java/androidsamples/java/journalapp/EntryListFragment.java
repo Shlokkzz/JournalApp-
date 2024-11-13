@@ -3,17 +3,26 @@ package androidsamples.java.journalapp;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,6 +46,11 @@ public class EntryListFragment extends Fragment {
                            Bundle savedInstanceState) {
     view = inflater.inflate(R.layout.fragment_entry_list, container, false);
 
+    // clickListeners
+    FloatingActionButton mAddButton = view.findViewById(R.id.btn_add_entry);
+    mAddButton.setOnClickListener(this::addNewEntry);
+
+
     RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
     recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     JournalEntryListAdapter adapter = new JournalEntryListAdapter(getActivity());
@@ -45,6 +59,16 @@ public class EntryListFragment extends Fragment {
     mJournalViewModel.getAllEntries().observe(requireActivity(),(List<JournalEntry> entries) -> adapter.setEntries(entries));
 
     return view;
+  }
+
+  public void addNewEntry(View view) {
+    JournalEntry entry = new JournalEntry("", "", "", "");
+    mJournalViewModel.insert(entry);
+
+    EntryListFragmentDirections.AddEntryAction action = EntryListFragmentDirections.addEntryAction();
+    action.setEntryId(entry.getUid().toString());
+
+    Navigation.findNavController(view).navigate(action);
   }
 
 
@@ -63,7 +87,29 @@ public class EntryListFragment extends Fragment {
       mTxtStart = itemView.findViewById(R.id.txt_item_start_time);
       mTxtEnd = itemView.findViewById(R.id.txt_item_end_time);
 
-      // itemView.setOnClickListener(this::launchJournalEntryFragment);
+       itemView.setOnClickListener(this::launchJournalEntryFragment);
+    }
+
+    private void launchJournalEntryFragment(View v) {
+      Log.d(TAG, "launchJournalEntryFragment with Entry: " + mEntry.title());
+
+      EntryListFragmentDirections.AddEntryAction action = EntryListFragmentDirections.addEntryAction();
+      action.setEntryId(mEntry.getUid().toString());
+
+      @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("E, MMM dd, yyyy");
+      try {
+        Date date = formatter.parse(mEntry.date());
+        Calendar cal = Calendar.getInstance();
+        assert date != null;
+        cal.setTime(date);
+
+        action.setSelectedDate(cal.get(Calendar.DATE));
+        action.setSelectedMonth(cal.get(Calendar.MONTH));
+        action.setSelectedYear(cal.get(Calendar.YEAR));
+      } catch (ParseException e) {
+        e.printStackTrace();
+      }
+      Navigation.findNavController(v).navigate(action);
     }
 
     void bind(JournalEntry entry) {
